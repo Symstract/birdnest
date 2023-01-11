@@ -31,6 +31,7 @@ class NDZViolationMonitor {
     ignoreAttributes: false,
     attributeNamePrefix: "@_",
   });
+  private throttle = false;
 
   start() {
     setInterval(() => {
@@ -44,6 +45,8 @@ class NDZViolationMonitor {
   }
 
   private async checkNewViolations() {
+    if (this.throttle) return;
+
     const droneReport = await this.fetchDrones();
 
     if (!droneReport) return;
@@ -90,10 +93,23 @@ class NDZViolationMonitor {
         "https://assignments.reaktor.com/birdnest/drones"
       );
       return this.xmlParser.parse(XMLresponse.data);
-    } catch (error) {
-      console.log(error);
-      return null;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        // Sometimes the API responds with a rate limit error. In that case,
+        // wait a bit before making new requests.
+        if (error.response && error.response.status === 429) {
+          this.throttle = true;
+          setTimeout(() => (this.throttle = false), 6000);
+          console.log(
+            `(${new Date()}) Rate limit exceeded at https://assignments.reaktor.com/birdnest/drones. Waiting for 6 seconds before making new requests...`
+          );
+        }
+      } else {
+        console.log(error);
+      }
     }
+
+    return null;
   }
 
   private calcDistanceToNDZcenter(drone: any) {
