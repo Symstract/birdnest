@@ -181,4 +181,6 @@ class NDZViolationMonitor {
   }
 }
 
-export default NDZViolationMonitor;
+const violationMonitor = new NDZViolationMonitor();
+
+export default violationMonitor;
