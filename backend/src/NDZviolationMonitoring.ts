@@ -55,36 +55,51 @@ class NDZViolationMonitor {
 
     if (!droneCapture.length) return;
 
-    const distToNestPerDrone = droneCapture.map((drone: any) => ({
+    const distToNDZCenterPerDrone = droneCapture.map((drone: any) => ({
       serialNumber: drone.serialNumber as string,
       distance: this.calcDistanceToNDZcenter(drone),
     }));
 
     const NDZRadiusInMm = 100_000;
-    const tooCloseDistPerDrone = distToNestPerDrone.filter(
+    const tooCloseDistPerDrone = distToNDZCenterPerDrone.filter(
       ({ distance }) => distance <= NDZRadiusInMm
     );
 
     if (!tooCloseDistPerDrone.length) return;
 
-    const pilots = await this.fetchPilots(
-      tooCloseDistPerDrone.map(({ serialNumber }) => serialNumber)
+    const existingSerialNumbers = this.violations.map(
+      ({ serialNumber }) => serialNumber
     );
 
-    const violations: NDZViolation[] = tooCloseDistPerDrone.map(
-      ({ distance, serialNumber }, index) => {
-        return {
-          serialNumber,
-          closestDistanceInMm: distance,
-          pilot: pilots && pilots[index] ? pilots[index] : null,
-          latestCaptureDateAndTime: new Date(
-            droneReport.report.capture["@_snapshotTimestamp"]
-          ),
-        };
+    const tooCloseDistPerNewDrone = tooCloseDistPerDrone.filter(
+      ({ serialNumber }) => {
+        return !existingSerialNumbers.includes(serialNumber);
       }
     );
 
-    this.addOrUpdateViolations(violations);
+    const newPilots = await this.fetchPilots(
+      tooCloseDistPerNewDrone.map(({ serialNumber }) => serialNumber)
+    );
+
+    if (!newPilots) return;
+
+    const newViolations: NDZViolation[] = tooCloseDistPerNewDrone.map(
+      ({ serialNumber, distance }, index) => ({
+        serialNumber: serialNumber,
+        pilot: newPilots[index],
+        closestDistanceInMm: distance,
+        latestCaptureDateAndTime: new Date(
+          droneReport.report.capture["@_snapshotTimestamp"]
+        ),
+      })
+    );
+
+    this.violations.push(...newViolations);
+
+    this.updateViolations(
+      distToNDZCenterPerDrone,
+      new Date(droneReport.report.capture["@_snapshotTimestamp"])
+    );
   }
 
   private async fetchDrones() {
@@ -152,21 +167,24 @@ class NDZViolationMonitor {
     }
   }
 
-  private addOrUpdateViolations(violations: NDZViolation[]) {
-    for (const violation of violations) {
-      const existingViolation = this.violations.find(
-        (v) => v.serialNumber === violation.serialNumber
-      );
-      if (existingViolation) {
-        existingViolation.latestCaptureDateAndTime =
-          violation.latestCaptureDateAndTime;
-        if (
-          violation.closestDistanceInMm <= existingViolation.closestDistanceInMm
-        ) {
-          existingViolation.closestDistanceInMm = violation.closestDistanceInMm;
+  private updateViolations(
+    distancePerDrone: {
+      serialNumber: string;
+      distance: number;
+    }[],
+    dateAndTime: Date
+  ) {
+    const serialNumberViolationMap = Object.fromEntries(
+      this.violations.map((violation) => [violation.serialNumber, violation])
+    );
+
+    for (const distAndDrone of distancePerDrone) {
+      const violation = serialNumberViolationMap[distAndDrone.serialNumber];
+      if (violation) {
+        violation.latestCaptureDateAndTime = dateAndTime;
+        if (distAndDrone.distance <= violation.closestDistanceInMm) {
+          violation.closestDistanceInMm = distAndDrone.distance;
         }
-      } else {
-        this.violations.push(violation);
       }
     }
   }
