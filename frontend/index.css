@@ -1,0 +1,116 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  color: rgb(233, 232, 232);
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+}
+
+html {
+  background: rgb(22, 26, 37);
+}
+
+h1 {
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 2rem;
+}
+
+.page-container {
+  max-width: 1000px;
+  width: 95%;
+  margin: 0 auto;
+  margin-top: 3rem;
+  padding-bottom: 2rem;
+}
+
+table {
+  width: 100%;
+  margin: 0 auto;
+  display: block;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.166);
+  border-collapse: collapse;
+}
+
+table * {
+  width: 100%;
+  border: none;
+}
+
+thead {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.166);
+}
+
+tbody {
+  background: rgb(24, 27, 41);
+  white-space: nowrap;
+}
+
+th,
+td {
+  padding: 0.8rem;
+  border-top-width: 0;
+  border-left-width: 0;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: rgb(41, 50, 77);
+  vertical-align: bottom;
+}
+
+th:last-child,
+td:last-child {
+  border-right-width: 0;
+}
+
+tr:last-child td {
+  border-bottom-width: 0;
+}
+
+tr:nth-child(even) {
+  background: rgba(44, 51, 73, 0.562);
+}
+
+.distance,
+.distance-header {
+  width: 22%;
+}
+
+.distance {
+  font-weight: 700;
+}
+
+.last-name,
+.last-name-header {
+  width: 20%;
+}
+
+.first-name,
+.first-name-header {
+  width: 20%;
+}
+
+.phone-number,
+.phone-number-header {
+  width: 20%;
+}
+
+.email,
+.email-header {
+  width: 20%;
+}
+
+@media screen and (min-width: 700px) {
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .page-container {
+    margin-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
