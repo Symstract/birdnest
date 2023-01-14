@@ -10,12 +10,6 @@ html {
   background: rgb(22, 26, 37);
 }
 
-h1 {
-  margin-bottom: 2rem;
-  text-align: center;
-  font-size: 2rem;
-}
-
 .page-container {
   max-width: 1000px;
   width: 95%;
@@ -24,10 +18,22 @@ h1 {
   padding-bottom: 2rem;
 }
 
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 2rem;
+}
+
 table {
+  display: none;
   width: 100%;
   margin: 0 auto;
-  display: block;
   overflow-x: auto;
   border: 1px solid rgba(255, 255, 255, 0.166);
   border-collapse: collapse;
@@ -76,7 +82,7 @@ tr:nth-child(even) {
 
 .distance,
 .distance-header {
-  width: 22%;
+  width: 26%;
 }
 
 .distance {
@@ -101,6 +107,27 @@ tr:nth-child(even) {
 .email,
 .email-header {
   width: 20%;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#spinner {
+  animation: spin 1s linear infinite;
+}
+
+#no-content,
+#failed-to-load {
+  display: none;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+#failed-to-load {
+  color: rgb(253, 109, 109);
 }
 
 @media screen and (min-width: 700px) {

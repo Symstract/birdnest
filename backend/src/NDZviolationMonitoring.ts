@@ -27,11 +27,16 @@ class NDZViolationMonitor {
   // https://assignments.reaktor.com/birdnest/drones.
   readonly fetchIntervalInSecs = 2;
   private violations: NDZViolation[] = [];
+  private _lastUpdatedAt: Date | null = null;
   private xmlParser = new XMLParser({
     ignoreAttributes: false,
     attributeNamePrefix: "@_",
   });
   private throttle = false;
+
+  get lastUpdatedAt() {
+    return this._lastUpdatedAt;
+  }
 
   start() {
     setInterval(() => {
@@ -100,6 +105,8 @@ class NDZViolationMonitor {
       distToNDZCenterPerDrone,
       new Date(droneReport.report.capture["@_snapshotTimestamp"])
     );
+
+    this._lastUpdatedAt = new Date();
   }
 
   private async fetchDrones() {
