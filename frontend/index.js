@@ -48,7 +48,9 @@ class ViolationTable {
 
   async getViolations() {
     try {
-      const response = await fetch("http://localhost:5000/api/ndz-violations");
+      const response = await fetch(
+        "https://birdnest-backend-9wa5.onrender.com/api/ndz-violations"
+      );
 
       if (response.status !== 200) {
         return [null, null];
